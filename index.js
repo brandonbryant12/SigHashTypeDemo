@@ -1,9 +1,19 @@
 const bsv = require('bsv');
 const http = require('superagent');
 const Minercraft = require('minercraft');
+/*
 const miner = new Minercraft({
   "url": "https://merchantapi.taal.com"
 });
+*/
+const miner = new Minercraft({
+  url: "https://www.ddpurse.com/openapi",
+  headers: {
+    // The following token value is a "free trial" value. For more info visit https://developers.dotwallet.com/en/dev/api/merchant
+    token: "561b756d12572020ea9a104c3441b71790acbbce95a6ddbf7e0630971af9424b"
+  }
+})
+
 const feeAmount = 800;
 const pk = new bsv.PrivateKey('KyvKDDPmQ4st2o3CHVzFyWsCTSY3EmFZfFcZSbocxkNsPPFU7hgM')
 const publicKey = pk.publicKey;
@@ -67,11 +77,11 @@ async function addInputToCrowdFund(crowdFund, inputTxid, privateKey){
  
   const outputs = [{
     address: '1JAZgrNxzJ41qyWexWAkDBufwsHpYX2MPC',
-    amount: 0.0001*1e8-600,
+    amount: 0.0001*1e8 - 800,
   }]
   let crowdFund = createCrowdFund(outputs)  
-  crowdFund = await addInputToCrowdFund(crowdFund, 'eb9940dbe00d0411f9c60146ccf9a6e460dd22eebf09f62670e06299251c6e9d', pk)
-  console.log(await broadcast(crowdFund.serialize()))
+  crowdFund = await addInputToCrowdFund(crowdFund, 'a3fe0db1f909027c952ad7006299ef6c8aa06d0a1bf7fa711fe26544bcc7974d', pk)
+  console.log(await broadcastMapi(crowdFund.serialize()))
   
 })()
 
@@ -120,9 +130,11 @@ async function addToTransaction(tx,output, txid, pk, senderAddress){
   return tx;
 }
 
-/*
+
 //Modular Transaction Demo 
 //Allows sender 1 to add their input/output to pass tx to sender 2 and then they add their input/output
+//
+/*
 (async () => {
 
   const output = {
@@ -137,15 +149,19 @@ async function addToTransaction(tx,output, txid, pk, senderAddress){
   const txid1 = 'cd777af784608a81bb9db1254bcaca2772fc76d31ddf1caee60f48f49900cd2d';
   tx = await addToTransaction(tx, output, txid1, pk1, sender1); 
 
-  const pk2 = new bsv.PrivateKey('KxR6aBeCX7HcPHV7iS79KiANQC9ZjHcNdHxnay8sYBezU4S8B9EV');
-  const sender2 = pk2.publicKey.toAddress().toString()
-  const txid2 = '5fd35857109394a4edcd6c39a9a77a71f2c9d0281d9b7c452c6b1e2e0c4e0a9f';
-  tx = await addToTransaction(tx, output, txid2, pk2, sender2); 
-
-  const rawTx = tx.serialize()
-  const result = await broadcast(rawTx);
-  console.log(result)
+//  const pk2 = new bsv.PrivateKey('KxR6aBeCX7HcPHV7iS79KiANQC9ZjHcNdHxnay8sYBezU4S8B9EV');
+//  const sender2 = pk2.publicKey.toAddress().toString()
+//  const txid2 = '5fd35857109394a4edcd6c39a9a77a71f2c9d0281d9b7c452c6b1e2e0c4e0a9f';
+//  tx = await addToTransaction(tx, output, txid2, pk2, sender2); 
+  
+   const rawTx = tx.serialize()
+  console.log(rawTx)
+   const result = await broadcastMapi(rawTx);
+   console.log(result)
   // Demo result:
   // 3e265edfe28502c18fa58292f9e0841ffef1321dc5a1d88a1dc8abe71bb318c6
 })()
 */
+async function broadcastMapi(tx){
+  return await miner.tx.push(tx);
+}
